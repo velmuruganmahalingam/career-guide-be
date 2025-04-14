@@ -74,13 +74,26 @@ const getAllCourseCategories = async (req, res) => {
 
 const postCourse = async (req, res) => {
     try {
+        // Validate required fields
+        if (!req.body.name || !req.body.level || !req.body.category) {
+            return res.status(400).json({
+                message: "Name, level, and category are required."
+            });
+        }
+
         const newCourse = await Course.create(req.body);
         res.status(201).json({
             message: "Course created successfully",
-            data: newCourse
+            newCourse
         });
     } catch (err) {
-        console.log(err);
+        console.error(err.message);
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({
+                message: "Validation error",
+                error: err.message
+            });
+        }
         res.status(500).json({
             message: "Error creating course",
             error: err.message
