@@ -5,6 +5,8 @@ require('dotenv').config();
 const studentRoute = require('./routes/studentRoutes')
 const enquiryRoute = require('./routes/enquiryRoutes')
 const collegeCourse = require('./routes/collegeCourseDetailRoutes')
+const courseRoutes = require('./routes/courseRoutes');
+
 
 const app = express()
 
@@ -13,6 +15,7 @@ app.use(express.json());
 app.use('/api/students', studentRoute);
 app.use('/api/enquiry', enquiryRoute);
 app.use('/api/collegecourse', collegeCourse);
+app.use('/api/courses', courseRoutes);
 app.use((req, res, next) => {
     console.log(`404-Not found ${req.method} ${req.originalUrl}`)
     res.status(404).json({ message: 'Route not found' })
