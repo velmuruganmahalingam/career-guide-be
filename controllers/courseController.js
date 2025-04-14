@@ -1,6 +1,6 @@
 const EducationLevel = require("../models/EducationLevel");
 const CourseCategory = require("../models/CourseCategory");
-const Course = require("../models/EducationLevel");
+const Course = require("../models/Course");
 
 // ==== Education Level Controllers ====
 
@@ -104,8 +104,21 @@ const postCourse = async (req, res) => {
 const getAllCourses = async (req, res) => {
     try {
         const courses = await Course.find()
-            .populate('level', 'id label')
-            .populate('category', 'id title');
+            .populate({
+                path: 'level',
+                select: 'id label order'
+            })
+            .populate({
+                path: 'category',
+                select: 'id title description icon iconColor'
+            });
+
+        if (!courses || courses.length === 0) {
+            return res.status(200).json({
+                message: "No courses found",
+                data: []
+            });
+        }
 
         res.status(200).json({
             message: "Courses retrieved successfully",
@@ -197,15 +210,25 @@ const getCategorizedCoursesByLevel = async (req, res) => {
 
 const getCourseBySearch = async (req, res) => {
     try {
-        const searchQuery = req.query.searchQuery;
+        const { query } = req.query;
+
+        if (!query) {
+            return res.status(400).json({
+                message: "Search query is required"
+            });
+        }
+
         const courses = await Course.find({
-            name: { $regex: searchQuery, $options: "i" }
+            $or: [
+                { name: { $regex: query, $options: "i" } },
+                { description: { $regex: query, $options: "i" } }
+            ]
         })
             .populate('level', 'id label')
             .populate('category', 'id title');
 
         res.status(200).json({
-            message: "Search results:",
+            message: "Search results retrieved successfully",
             data: courses
         });
     } catch (err) {
