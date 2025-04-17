@@ -21,7 +21,7 @@ const createEnquirySchema = new mongoose.Schema({
     },
     stdQualification: {
         type: String,
-        required: false,
+        required: true,
     },
     enquiryDate: {
         type: Date,
